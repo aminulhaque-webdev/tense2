@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>12 Tenses Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Hind+Siliguri:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fdfdfb;--line:#cfe0f0;--ink:#1c2340;--muted:#5a6285;--accent:#c0392b;--btn:#1c2340;--btnt:#fff;--box:#fff;--hl:#fff7d6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#1b1d27;--line:#2c3350;--ink:#e8ebff;--muted:#a3abd0;--accent:#ff8a7a;--btn:#e8ebff;--btnt:#1b1d27;--box:#242738;--hl:#2d2f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--paper:#1b1d27;--line:#2c3350;--ink:#e8ebff;--muted:#a3abd0;--accent:#ff8a7a;--btn:#e8ebff;--btnt:#1b1d27;--box:#242738;--hl:#2d2f1f;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Lato','Hind Siliguri',sans-serif;font-size:16px;
+background-image:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px)}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 14px 40px}
+.top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:22px}
+.lbl{font-size:24px;font-weight:700;border-bottom:3px solid var(--ink);padding:0 6px}
+input{font-family:inherit;font-size:16px;color:var(--ink);background:var(--box);border:2.5px solid var(--ink);border-radius:4px 10px 5px 9px;padding:6px 12px;min-width:240px;flex:1;max-width:420px}
+input:focus{outline:3px solid var(--accent)}
+button{font-family:inherit;font-size:16px;font-weight:700;background:var(--btn);color:var(--btnt);border:2.5px solid var(--ink);border-radius:9px 4px 10px 5px;padding:6px 22px;cursor:pointer}
+button:hover{opacity:.88}
+.msg{width:100%;color:var(--accent);font-size:16px;min-height:24px;margin:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:780px;table-layout:fixed;background:var(--paper)}
+th,td{border:2.5px solid var(--ink);padding:10px 12px;vertical-align:top;text-align:left}
+th{font-size:22px;text-align:center;font-weight:700}
+th.corner{width:130px;border-top-color:transparent;border-left-color:transparent;background:none}
+td.row{width:130px;font-size:20px;font-weight:700;text-align:center;vertical-align:middle}
+td.row small{display:block;font-family:'Hind Siliguri',sans-serif;font-size:19px;font-weight:500;color:var(--accent)}
+.f{color:var(--muted);font-size:14px;line-height:1.15;margin-bottom:6px}
+.e{font-size:16px;line-height:1.15;font-weight:700;margin-bottom:6px;word-break:break-word}
+.b{font-family:'Hind Siliguri',sans-serif;font-size:16px;color:var(--accent);line-height:1.4}
+td.cell:hover{background:var(--hl)}
+.note{color:var(--muted);font-size:15px;line-height:1.6;margin-top:16px;background:var(--paper);padding:6px 8px;border-radius:6px}
+@media (max-width:700px){
+body{font-size:16px}
+.wrap{padding:14px 10px 30px}
+.top{gap:10px}
+.lbl{font-size:22px}
+input{min-width:0;width:100%;max-width:none;flex:none}
+button{width:100%}
+.scroll{overflow:visible}
+thead{display:none}
+table,tbody,tr,td{display:block;width:100%;min-width:0}
+table{background:none}
+tr{margin-bottom:18px;border:2.5px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--paper)}
+th,td{border:0;border-bottom:1.5px dashed var(--ink);padding:10px 12px}
+td:last-child{border-bottom:0}
+td.row{width:100%;display:flex;gap:8px;flex-wrap:wrap;align-items:baseline;justify-content:flex-start;text-align:left;background:var(--ink);color:var(--paper);font-size:19px;border-bottom:0}
+td.row small{display:inline;color:inherit;opacity:.85}
+td.cell::before{content:attr(data-label);display:block;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    
+    <input id="inp" value="I eat rice" autocomplete="off" aria-label="Sentence" placeholder="Type any sentence">
+    <button id="go" type="button">Convert to 12 Tenses</button>
+    <p class="msg" id="msg"></p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th class="corner"></th><th>Present</th><th>Past</th><th>Future</th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <p class="note">Write any sentence in any tense (spelling and grammar mistakes are fixed automatically): “The boys are playing football”, “She did not eat rice”, “He has gone to school”, “I will always help you”. Questions and modal verbs (can, must) are not supported. Bengali works for common verbs like eat, go, come, read, play, write, see, drink, work.</p>
+</div>
+<script>
+const IRR={eat:['ate','eaten'],go:['went','gone'],come:['came','come'],see:['saw','seen'],drink:['drank','drunk'],write:['wrote','written'],take:['took','taken'],give:['gave','given'],run:['ran','run'],read:['read','read'],do:['did','done'],have:['had','had'],make:['made','made'],buy:['bought','bought'],speak:['spoke','spoken'],sing:['sang','sung'],sit:['sat','sat'],sleep:['slept','slept'],know:['knew','known'],get:['got','got'],bring:['brought','brought'],drive:['drove','driven'],swim:['swam','swum'],teach:['taught','taught'],say:['said','said'],find:['found','found'],keep:['kept','kept'],leave:['left','left'],put:['put','put'],hear:['heard','heard'],begin:['began','begun'],win:['won','won'],lose:['lost','lost'],fall:['fell','fallen'],grow:['grew','grown'],draw:['drew','drawn'],fly:['flew','flown'],build:['built','built'],send:['sent','sent'],tell:['told','told'],think:['thought','thought'],feel:['felt','felt'],meet:['met','met'],sell:['sold','sold'],pay:['paid','paid'],wear:['wore','worn'],catch:['caught','caught'],throw:['threw','thrown'],ride:['rode','ridden'],stand:['stood','stood'],hold:['held','held'],cut:['cut','cut'],forget:['forgot','forgotten'],understand:['understood','understood'],wake:['woke','woken'],shine:['shone','shone']};
+const REG='play work study walk help cook love like want need watch listen talk call open close clean wash ask answer learn live stay wait try use visit travel carry start finish show turn move paint dance laugh cry jump push pull post bake fix climb look smile enjoy cross repair rain snow'.split(' ');
+const VERBS=new Set([...Object.keys(IRR),...REG]);
+const PASTREV={},PPREV={};
+for(const k in IRR){PASTREV[IRR[k][0]]=k;PPREV[IRR[k][1]]=k}
+const ADV=['always','often','usually','sometimes','also','just','already','really','seldom','rarely'];
+const PRON=['i','we','you','they','he','she','it'];
+const DET=['the','a','an','my','your','his','her','our','their','this','that','these','those','some','many','all'];
+const AUXW=['am','is','are','was','were','have','has','had','will','shall','do','does','did'];
+const MODAL=['can','could','should','would','must','may','might'];
+const WH=['what','where','when','why','who','how','which','whom'];
+
+const dbl=v=>['begin','forget'].includes(v)||(v.length>2&&v.length<5&&/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(v));
+const col=s=>/(.)\1$/.test(s)?s.slice(0,-1):s;
+const ed=v=>v.endsWith('e')?v+'d':/[^aeiou]y$/.test(v)?v.slice(0,-1)+'ied':dbl(v)?v+v.slice(-1)+'ed':v+'ed';
+const ing=v=>v==='be'?'being':v.endsWith('ie')?v.slice(0,-2)+'ying':(v.endsWith('e')&&!v.endsWith('ee'))?v.slice(0,-1)+'ing':dbl(v)?v+v.slice(-1)+'ing':v+'ing';
+const sForm=v=>v==='have'?'has':/[^aeiou]y$/.test(v)?v.slice(0,-1)+'ies':/(s|sh|ch|x|z|o)$/.test(v)?v+'es':v+'s';
+function edBase(x){const s=x.slice(0,-2);return[s,s+'e',col(s),x.slice(0,-3)+'y'].find(z=>VERBS.has(z))||s}
+function unIng(x){const s=x.slice(0,-3);return[s,s+'e',col(s)].find(z=>VERBS.has(z))||col(s)}
+function baseOf(v){
+  if(v==='has')return'have';
+  if(VERBS.has(v))return v;
+  if(PASTREV[v])return PASTREV[v];
+  if(PPREV[v])return PPREV[v];
+  if(/ie[ds]$/.test(v)&&VERBS.has(v.slice(0,-3)+'y'))return v.slice(0,-3)+'y';
+  if(/ed$/.test(v)&&v.length>3)return edBase(v);
+  if(/(oes|ches|shes|xes|sses|zes)$/.test(v)&&VERBS.has(v.slice(0,-2)))return v.slice(0,-2);
+  if(/[^s]s$/.test(v))return v.slice(0,-1);
+  return v;
+}
+const isVerb=x=>!!x&&VERBS.has(baseOf(x));
+const isPP=x=>!!x&&(!!PPREV[x]||(/ed$/.test(x)&&isVerb(x)));
+
+const SUBJ_BN={i:'আমি',we:'আমরা',you:'তুমি',they:'তারা',he:'সে',she:'সে',it:'এটি'};
+const WORD_BN={rice:'ভাত',field:'মাঠ',garden:'বাগান',park:'পার্ক',river:'নদী',room:'ঘর',house:'বাড়ি',village:'গ্রাম',city:'শহর',road:'রাস্তা',library:'লাইব্রেরি',class:'ক্লাস',me:'আমাকে',you:'তোমাকে',him:'তাকে',us:'আমাদের',them:'তাদের',water:'পানি',food:'খাবার',fish:'মাছ',bread:'রুটি',mango:'আম',mangoes:'আম',book:'বই',books:'বই',cricket:'ক্রিকেট',football:'ফুটবল',school:'স্কুল',home:'বাড়ি',market:'বাজার',milk:'দুধ',tea:'চা',apple:'আপেল',egg:'ডিম',eggs:'ডিম',newspaper:'পত্রিকা',college:'কলেজ',office:'অফিস',letter:'চিঠি',song:'গান',lunch:'দুপুরের খাবার',dinner:'রাতের খাবার',breakfast:'সকালের নাস্তা',tv:'টিভি',movie:'সিনেমা',brother:'ভাই',sister:'বোন',mother:'মা',father:'বাবা',friend:'বন্ধু',friends:'বন্ধুরা',teacher:'শিক্ষক',student:'ছাত্র',students:'ছাত্ররা',boy:'ছেলে',girl:'মেয়ে',boys:'ছেলেরা',girls:'মেয়েরা',dog:'কুকুর',cat:'বিড়াল',man:'লোক',my:'আমার',your:'তোমার',his:'তার',her:'তার',our:'আমাদের',their:'তাদের',and:'ও',every:'প্রতি',day:'দিন',today:'আজ',tomorrow:'আগামীকাল',yesterday:'গতকাল',morning:'সকাল',night:'রাত',daily:'প্রতিদিন',now:'এখন',hour:'ঘণ্টা',this:'এই',that:'ঐ',the:'',a:'',an:'',to:'',at:'',in:'',on:''};
+const ADV_BN={always:'সবসময়',often:'প্রায়ই',usually:'সাধারণত',sometimes:'মাঝে মাঝে',also:'ও',just:'এইমাত্র',already:'ইতিমধ্যে',really:'সত্যিই',seldom:'কদাচিৎ',rarely:'কদাচিৎ'};
+const bnW=a=>a.filter(Boolean).map(x=>{const l=x.toLowerCase();return l in WORD_BN?WORD_BN[l]:x}).filter(Boolean).join(' ');
+const sfx=s=>/[িীু]$/.test(s)?'তে':/া$/.test(s)?'য়':'ে';
+function bnRest(a){
+  let loc=false,pend=false;const o=[];
+  for(const x of a.filter(Boolean)){
+    const l=x.toLowerCase();
+    if(['in','at','on','to'].includes(l)){pend=true;continue}
+    if(['the','a','an'].includes(l))continue;
+    let w=l in WORD_BN?WORD_BN[l]:x;
+    if(pend&&w&&!/[A-Za-z]/.test(w)){w+=sfx(w);loc=true;pend=false}
+    if(w)o.push(w);
+  }
+  return{t:o.join(' '),loc};
+}
+const kor=x=>({pres:[x+' করি',x+' কর',x+' করে'],past:x+' কর',ing:x+' করছ',perf:x+' করেছ',pp:x+' করে',inf:x+' করতে',fut:x+' কর'});
+const BN={
+ eat:{pres:['খাই','খাও','খায়'],past:'খে',ing:'খাচ্ছ',perf:'খেয়েছ',pp:'খেয়ে',inf:'খেতে',fut:'খা'},
+ go:{pres:['যাই','যাও','যায়'],past:'গে',ing:'যাচ্ছ',perf:'গিয়েছ',pp:'গিয়ে',inf:'যেতে',fut:'যা',place:1},
+ come:{pres:['আসি','আস','আসে'],past:'এ',ing:'আসছ',perf:'এসেছ',pp:'এসে',inf:'আসতে',fut:'আস',place:1},
+ read:{pres:['পড়ি','পড়','পড়ে'],past:'পড়',ing:'পড়ছ',perf:'পড়েছ',pp:'পড়ে',inf:'পড়তে',fut:'পড়'},
+ play:{pres:['খেলি','খেল','খেলে'],past:'খেল',ing:'খেলছ',perf:'খেলেছ',pp:'খেলে',inf:'খেলতে',fut:'খেল'},
+ write:{pres:['লিখি','লেখ','লেখে'],past:'লিখ',ing:'লিখছ',perf:'লিখেছ',pp:'লিখে',inf:'লিখতে',fut:'লিখ'},
+ see:{pres:['দেখি','দেখ','দেখে'],past:'দেখ',ing:'দেখছ',perf:'দেখেছ',pp:'দেখে',inf:'দেখতে',fut:'দেখ'},
+ sleep:{pres:['ঘুমাই','ঘুমাও','ঘুমায়'],past:'ঘুমা',ing:'ঘুমাচ্ছ',perf:'ঘুমিয়েছ',pp:'ঘুমিয়ে',inf:'ঘুমাতে',fut:'ঘুমা'},
+ run:{pres:['দৌড়াই','দৌড়াও','দৌড়ায়'],past:'দৌড়া',ing:'দৌড়াচ্ছ',perf:'দৌড়িয়েছ',pp:'দৌড়িয়ে',inf:'দৌড়াতে',fut:'দৌড়া'},
+ walk:{pres:['হাঁটি','হাঁট','হাঁটে'],past:'হাঁট',ing:'হাঁটছ',perf:'হেঁটেছ',pp:'হেঁটে',inf:'হাঁটতে',fut:'হাঁট'},
+ drink:kor('পান'),work:kor('কাজ'),study:kor('পড়াশোনা'),help:kor('সাহায্য'),cook:kor('রান্না')
+};
+const E={past:['লাম','লে','ল'],fut:['ব','বে','বে'],ing:['ি','','ে'],ingp:['িলাম','িলে','িল'],perf:['ি','','ে'],pp:['ছিলাম','ছিলে','ছিল'],th:['থাকব','থাকবে','থাকবে']};
+const ROWS=[
+ ['Simple','সাধারণ',['S + V1(s/es) + obj','S + V2 + obj','S + will + V1 + obj']],
+ ['Continuous','চলমান',['S + am/is/are + V1+ing + obj','S + was/were + V1+ing + obj','S + will be + V1+ing + obj']],
+ ['Perfect','সম্পূর্ণ',['S + has/have + V3 + obj','S + had + V3 + obj','S + will have + V3 + obj']],
+ ['Perfect Continuous','সম্পূর্ণ চলমান',['S + has/have been + V1+ing + obj + for/since','S + had been + V1+ing + obj + for/since','S + will have been + V1+ing + obj + for/since']]
+];
+
+function norm(s){
+  return s.replace(/[’‘]/g,"'")
+   .replace(/\b(\w+)n't\b/gi,(m,a)=>{const l=a.toLowerCase();return(l==='wo'?'will':l==='ca'?'can':l==='sha'?'shall':a)+' not'})
+   .replace(/\b(I|you|we|they)'(m|re)\b/gi,(m,a,b)=>a+' '+(b.toLowerCase()==='m'?'am':'are'))
+   .replace(/\s+/g,' ').trim().replace(/[.!]+$/,'');
+}
+function findK(lw){
+  if(PRON.includes(lw[0])&&lw[1]!=='and')return 1;
+  for(let i=1;i<lw.length;i++){
+    if(DET.includes(lw[i-1]))continue;
+    if(AUXW.includes(lw[i])||MODAL.includes(lw[i])||ADV.includes(lw[i])||isVerb(lw[i]))return i;
+  }
+  return DET.includes(lw[0])?2:1;
+}
+function parseVG(tok){
+  const t=tok.map(x=>x.toLowerCase());let i=0,neg=false,adv=[],verb=null;
+  const sa=()=>{while(ADV.includes(t[i]))adv.push(t[i++])};
+  const sn=()=>{if(t[i]==='not'||t[i]==='never'){neg=true;i++}};
+  const pre=()=>{i++;sa();sn();sa()};
+  const aB=()=>{
+    if(t[i]==='being'){i++;verb='be'}
+    else if(t[i]&&/ing$/.test(t[i])&&t[i].length>4&&isVerb(unIng(t[i]))){verb=unIng(t[i]);i++}
+    else verb='be';
+  };
+  const aH=()=>{
+    if(t[i]==='been'){i++;aB()}
+    else if(isPP(t[i])){verb=baseOf(t[i]);i++}
+    else verb='have';
+  };
+  sa();
+  const w=t[i];
+  if(!w||MODAL.includes(w))return null;
+  if(['do','does','did'].includes(w)){
+    const s=i;pre();
+    if(neg||isVerb(t[i])){verb=baseOf(t[i]);i++}else{i=s+1;neg=false;verb='do'}
+  }else if(w==='will'||w==='shall'){
+    pre();
+    if(t[i]==='be'){i++;aB()}
+    else if(t[i]==='have'&&(t[i+1]==='been'||isPP(t[i+1]))){i++;aH()}
+    else{verb=baseOf(t[i]);i++}
+  }else if(['am','is','are','was','were'].includes(w)){pre();aB()}
+  else if(['have','has','had'].includes(w)){pre();aH()}
+  else{verb=baseOf(w);i++}
+  if(!verb)return null;
+  return{verb,neg,adv:adv.join(' '),rest:tok.slice(i).join(' ')};
+}
+function parse(raw){
+  if(/\?\s*$/.test(raw))return{err:'Please write a statement, not a question. Example: She plays cricket'};
+  const tok=norm(raw).split(' ').filter(Boolean),lw=tok.map(x=>x.toLowerCase());
+  if(tok.length<2)return{err:'Please write a full sentence (subject + verb), e.g. I eat rice'};
+  if(WH.includes(lw[0])||AUXW.includes(lw[0]))return{err:'Please write a statement, not a question. Example: She plays cricket'};
+  const k=findK(lw),sTok=tok.slice(0,k),sl=lw.slice(0,k);
+  const vg=parseVG(tok.slice(k));
+  if(!vg)return{err:'Could not find a verb. Modal verbs (can, must, should…) are not supported yet.'};
+  const one=k===1&&PRON.includes(sl[0]),last=sl[k-1];
+  const pl=!one&&(sl.includes('and')||(/[^s]s$/.test(last)&&!/^[A-Z]/.test(sTok[k-1]))||['people','children','men','women'].includes(last));
+  return{
+    subj:sTok.map(x=>x.toLowerCase()==='i'?'I':x).join(' '),
+    first:one&&sl[0]==='i',
+    sg3:one?['he','she','it'].includes(sl[0]):!pl,
+    pi:one?(['i','we'].includes(sl[0])?0:sl[0]==='you'?1:2):2,
+    sbn:one?SUBJ_BN[sl[0]]:bnW(sTok),
+    ...vg
+  };
+}
+function build(p){
+  const v=p.verb,be=v==='be',irr=IRR[v]||[ed(v),ed(v)];
+  const bP=p.first?'am':p.sg3?'is':'are',bS=(p.first||p.sg3)?'was':'were',hv=p.sg3?'has':'have',dd=p.sg3?'does':'do';
+  const N=p.neg?' not':'',pp=be?'been':irr[1],g=ing(v);
+  const ex=/\b(for|since)\b/i.test(p.rest)?'':'for an hour';
+  const T=[
+   [be?[bP+N,'']:p.neg?[dd+' not',v]:['',p.sg3?sForm(v):v], be?[bS+N,'']:p.neg?['did not',v]:['',irr[0]], ['will'+N,v]],
+   [[bP+N,g],[bS+N,g],['will'+N,'be '+g]],
+   [[hv+N,pp],['had'+N,pp],['will'+N,'have '+pp]],
+   [[hv+N,'been '+g],['had'+N,'been '+g],['will'+N,'have been '+g]]
+  ];
+  const S=(...a)=>{const s=a.filter(Boolean).join(' ').replace(/\s+/g,' ');return s.charAt(0).toUpperCase()+s.slice(1)+'.'};
+  const en=T.map((r,ri)=>r.map(([a,m])=>S(p.subj,a,p.adv,m,p.rest,ri===3?ex:'')));
+  const b=BN[v];
+  if(!b||p.neg)return{en,bn:null};
+  const i=p.pi,sb=p.sbn,ad=p.adv?p.adv.split(' ').map(x=>ADV_BN[x]||x).join(' '):'';
+  const rr=bnRest(p.rest.split(' '));let rb=rr.t;
+  if(b.place&&rb&&!rr.loc)rb+=sfx(rb);
+  const L=(...a)=>a.filter(Boolean).join(' '),h=/\b(for|since)\b/i.test(p.rest)?'':'এক ঘণ্টা ধরে';
+  const bn=[
+   [L(sb,ad,rb,b.pres[i]),L(sb,ad,rb,b.past+E.past[i]),L(sb,ad,rb,b.fut+E.fut[i])],
+   [L(sb,ad,rb,b.ing+E.ing[i]),L(sb,ad,rb,b.ing+E.ingp[i]),L(sb,ad,rb,b.inf,E.th[i])],
+   [L(sb,ad,rb,b.perf+E.perf[i]),L(sb,ad,rb,b.pp+E.pp[i]),L(sb,ad,rb,b.pp,E.th[i])],
+   [L(sb,ad,h,rb,b.ing+E.ing[i]),L(sb,ad,h,rb,b.ing+E.ingp[i]),L(sb,ad,h,rb,b.inf,E.th[i])]
+  ];
+  return{en,bn};
+}
+const VF=new Set(['not','never','being','been',...AUXW,...ADV]);
+for(const v of VERBS){VF.add(v);VF.add(sForm(v));VF.add(ing(v));const r=IRR[v];if(r){VF.add(r[0]);VF.add(r[1])}else VF.add(ed(v))}
+const VFA=[...VF],NOUN=Object.keys(WORD_BN).filter(w=>WORD_BN[w]),SUBJ=[...DET,...PRON,...NOUN];
+const KNOWN=new Set([...VFA,...NOUN,...SUBJ,...MODAL,...WH,'to','in','at','on','for','since','and','the','a','an','of','with']);
+function lev(a,b){const d=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[b.length]}
+function near(w,c){const th=w.length<4?0:w.length<7?1:2;if(!th)return null;let best=null,bd=9;for(const x of c){if(Math.abs(x.length-w.length)>th)continue;const d=lev(w,x);if(d<bd){bd=d;best=x}}return bd<=th?best:null}
+function fixSentence(raw){
+  const tok=norm(raw).split(' ').filter(Boolean);
+  if(tok.length<2)return tok.join(' ');
+  tok.forEach((x,i)=>{if(x==='i')tok[i]='I'});
+  const lw=tok.map(x=>x.toLowerCase()),k=findK(lw);
+  let vg=false;
+  for(let i=0;i<tok.length;i++){
+    const w=lw[i];
+    if(i===k)vg=true;
+    if(/^[a-z]+$/.test(w)&&!/^[A-Z]/.test(tok[i])&&!KNOWN.has(w)){
+      const c=near(w,i<k?SUBJ:vg?VFA:NOUN);
+      if(c){tok[i]=c;lw[i]=c}
+    }
+    if(i>=k)vg=['not','never','been','being',...AUXW,...ADV].includes(lw[i]);
+  }
+  const sl=lw.slice(0,k),one=k===1&&PRON.includes(sl[0]),last=sl[k-1];
+  const pl=!one&&(sl.includes('and')||(/[^s]s$/.test(last)&&!/^[A-Z]/.test(tok[k-1]))||['people','children','men','women'].includes(last));
+  const first=one&&sl[0]==='i',sg3=one?['he','she','it'].includes(sl[0]):!pl;
+  let j=k;while(ADV.includes(lw[j]))j++;
+  const w=lw[j];
+  if(w){
+    if(['am','is','are'].includes(w))tok[j]=first?'am':sg3?'is':'are';
+    else if(['was','were'].includes(w))tok[j]=(first||sg3)?'was':'were';
+    else if(['have','has'].includes(w))tok[j]=sg3?'has':'have';
+    else if(['do','does'].includes(w))tok[j]=sg3?'does':'do';
+    else if(!AUXW.includes(w)&&!MODAL.includes(w)){
+      const b=baseOf(w);
+      if(VERBS.has(b)&&!(IRR[b]&&IRR[b][0]===b)){
+        if(w===b&&sg3)tok[j]=sForm(b);
+        else if(w===sForm(b)&&!sg3)tok[j]=b;
+      }
+    }
+  }
+  return tok.join(' ');
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function render(auto){
+  const msg=document.getElementById('msg'),body=document.getElementById('body');
+  let p,r,raw,fixed;
+  try{raw=document.getElementById('inp').value;fixed=raw;try{fixed=fixSentence(raw)}catch(_){}p=parse(fixed);if(!p.err)r=build(p)}
+  catch(e){p={err:'Sorry, I could not understand this sentence. Try a simple one like: She plays cricket'}}
+  if(p.err){msg.textContent=auto?'':p.err;return}
+  msg.textContent=(fixed.toLowerCase()!==norm(raw).toLowerCase()?'Auto-corrected: “'+fixed+'”. ':'')+(r.bn?'':(BN[p.verb]&&p.neg?'Note: Bengali is shown for affirmative sentences only.':'Note: Bengali translation is not available for this verb yet.'));
+  body.innerHTML=ROWS.map((row,ri)=>`<tr><td class="row">${row[0]}<small>${row[1]}</small></td>`+
+    row[2].map((f,ci)=>`<td class="cell" data-label="${['Present','Past','Future'][ci]}"><div class="f">${esc(f)}</div><div class="e">${esc(r.en[ri][ci])}</div><div class="b">${r.bn?esc(r.bn[ri][ci])+'।':''}</div></td>`).join('')+`</tr>`).join('');
+}
+document.getElementById('go').addEventListener('click',()=>render(false));
+let tm;
+document.getElementById('inp').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(()=>render(true),250)});
+document.getElementById('inp').addEventListener('keydown',e=>{if(e.key==='Enter')render(false)});
+render();
+</script>
+</body>
+</html>
